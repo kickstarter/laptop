@@ -100,6 +100,14 @@ launchctl unload ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist 2> /d
 launchctl load   ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist
 
 ##
+# Install Pow web server
+if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
+  # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
+  # curl -s get.pow.cx | sh
+  curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
+fi
+
+##
 # source ~/.ksr.rc from shell's rc file
 case $(basename "$SHELL") in
   bash )
