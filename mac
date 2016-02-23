@@ -129,6 +129,13 @@ eval "$(rbenv init -)"
 if [[ ! "$PATH" =~ "/usr/local/bin" ]]; then
   export PATH="/usr/local/bin:$PATH"
 fi
+
+# Set a higher ulimit to avoid
+# capistrano issues deploying to many servers
+LIMIT=2048
+if [ $LIMIT -gt `ulimit -n` ]; then
+   ulimit -n $LIMIT
+fi
 EOF
 
 
