@@ -10,12 +10,13 @@ cat > ~/.ksr_functions.sh <<-"EOF"
 # Helpful functions for from the kickstarter
 # laptop script
 
-# Print a cyan info message
-info() {
-  printf "\n%s ... " "$@"
+# Print a status message
+print_status() {
+  printf "%s ... " "$@"
 }
 
-print_check() {
+# Print a check to complete the status message
+print_done() {
   printf "✅ \n"
 }
 
@@ -24,7 +25,6 @@ succeed() {
   printf "\n$(tput bold)$(tput setaf 2)%s$(tput sgr0)" "$@"
   printf "\n❤️  💛  💚  💙  💜 \n"
 }
-
 
 # Print a red error
 fail() {
@@ -77,18 +77,18 @@ done
 ##
 # Install homebrew
 if ! command -v brew >/dev/null; then
-  info "Installing Homebrew"
+  print_status "Installing Homebrew"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  print_check
+  print_done
 fi
 
 if brew list | grep -Fq brew-cask; then
-  info "Uninstalling old Homebrew-Cask"
+  print_status "Uninstalling obsolete Homebrew-Cask"
   brew uninstall --force brew-cask
-  print_check
+  print_done
 fi
 
-info "Checking Homebrew formulae"
+print_status "Checking Homebrew formulae"
 brew bundle --file=- > /dev/null <<EOF
 tap "homebrew/services"
 
@@ -97,13 +97,13 @@ brew "openssl"
 brew "rbenv"
 brew "ruby-build"
 EOF
-print_check
+print_done
 
-info "Configuring rbenv init"
+print_status "Initializing rbenv"
 eval "$(rbenv init -)"
-print_check
+print_done
 
-info "Restarting background brew updater"
+print_status "Checking Homebrew updater"
 ##
 # Automatically run `brew update` every 2 hours
 # This saves ~20 seconds on subsequent runs b/c we don't have to wait for `brew update`
@@ -131,15 +131,17 @@ EOF
 
 launchctl unload ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist 2> /dev/null
 launchctl load   ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist
-print_check
+print_done
 
 ##
 # Install Pow web server
+print_status "Checking Pow web server"
 if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
   # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
   # curl -s get.pow.cx | sh
   curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
 fi
+print_done
 
 ##
 # source ~/.ksr.rc from shell's rc file
@@ -170,11 +172,11 @@ case $(basename "$SHELL") in
 
 cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 if ! grep -Fqs "$cmd" "$profile"; then
-  info "Adding ~/.ksr.rc to $profile"
+  print_status "Adding ~/.ksr.rc to $profile"
   printf "\n$cmd\n" >> "$profile"
-  print_check
+  print_done
 fi
 
-info "Reticulating splines"
-print_check
+print_status "Reticulating splines"
+print_done
 succeed "Laptop setup successful!"
