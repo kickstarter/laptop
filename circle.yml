@@ -1,0 +1,8 @@
+dependencies:
+  post:
+    - cabal update
+    - cabal install shellcheck
+
+test:
+  override:
+    - ~/.cabal/bin/shellcheck mac
