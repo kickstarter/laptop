@@ -32,6 +32,7 @@ fail() {
 }
 EOF
 
+# shellcheck source=/dev/null`
 source ~/.ksr_functions.sh
 
 exit_message() {
