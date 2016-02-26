@@ -4,17 +4,46 @@
 # Be prepared to turn your laptop (or desktop, no haters here)
 # into an awesome development machine.
 
-fancy_echo() {
-  local fmt="$1"; shift
+set -e
 
-  # shellcheck disable=SC2059
-  printf "\n$fmt\n" "$@"
+cat > ~/.ksr_functions.sh <<-"EOF"
+# Helpful functions for from the kickstarter
+# laptop script
+
+# Print a status message
+print_status() {
+  printf "%s ... " "$@"
+}
+
+# Print a check to complete the status message
+print_done() {
+  printf "✅ \n"
+}
+
+# Print a happy green message
+succeed() {
+  printf "\n$(tput bold)$(tput setaf 2)%s$(tput sgr0)" "$@"
+  printf "\n❤️  💛  💚  💙  💜 \n"
+}
+
+# Print a red error
+fail() {
+  printf "\n\n$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@"
+}
+EOF
+
+source ~/.ksr_functions.sh
+
+exit_message() {
+  ret=$?
+ if  [ $ret -ne 0 ]; then
+   fail "Setup failed. 💔  " >&2
+ fi
+ exit $ret
 }
 
 # shellcheck disable=SC2154
-trap 'ret=$?; test $ret -ne 0 && printf "Setup failed.\n\n" >&2; exit $ret' EXIT
-
-set -e
+trap exit_message EXIT
 
 ##
 # Install XCode and XCode Command line tools
@@ -32,12 +61,13 @@ fi
 
 # XCode command-line tools
 # From http://stackoverflow.com/a/15371967
-while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null; do
+while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null 2>&1; do
 
-  if [ -z "$xcode_cli_installing" ]; then
-    echo "Installing XCode command line tools."
+  if [ -z "$xcode_cli_installing" ]
+  then
+    print_status "Please install XCode command line tools in the pop-up window"
     xcode-select --install
-    echo "Waiting XCode command line tools..."
+    print_status "Waiting XCode command line tools"
     xcode_cli_installing='yes'
   else
     sleep 1
@@ -48,16 +78,18 @@ done
 ##
 # Install homebrew
 if ! command -v brew >/dev/null; then
-  fancy_echo "Installing Homebrew ..."
+  print_status "Installing Homebrew"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  print_done
 fi
 
 if brew list | grep -Fq brew-cask; then
-  fancy_echo "Uninstalling old Homebrew-Cask ..."
+  print_status "Uninstalling obsolete Homebrew-Cask"
   brew uninstall --force brew-cask
+  print_done
 fi
 
-fancy_echo "Checking Homebrew formulae ..."
+print_status "Checking Homebrew formulae"
 brew bundle --file=- > /dev/null <<EOF
 tap "homebrew/services"
 
@@ -66,11 +98,13 @@ brew "openssl"
 brew "rbenv"
 brew "ruby-build"
 EOF
+print_done
 
-fancy_echo "Configuring rbenv init ..."
+print_status "Initializing rbenv"
 eval "$(rbenv init -)"
+print_done
 
-fancy_echo "Restarting background brew updater..."
+print_status "Checking Homebrew updater"
 ##
 # Automatically run `brew update` every 2 hours
 # This saves ~20 seconds on subsequent runs b/c we don't have to wait for `brew update`
@@ -98,17 +132,33 @@ EOF
 
 launchctl unload ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist 2> /dev/null
 launchctl load   ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist
+print_done
 
 ##
 # Install Pow web server
+print_status "Checking Pow web server"
 if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
   # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
   # curl -s get.pow.cx | sh
   curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
 fi
+print_done
 
 ##
 # source ~/.ksr.rc from shell's rc file
+
+cat > ~/.ksr.rc <<-"EOF"
+# Kickstarter init commands provisioned by the laptop script.
+# Changes will be overwritten.
+
+# Initialize rbenv
+eval "$(rbenv init -)"
+
+if [[ ! "$PATH" =~ "/usr/local/bin" ]]; then
+  export PATH="/usr/local/bin:$PATH"
+fi
+EOF
+
 case $(basename "$SHELL") in
   bash )
     profile="$HOME/.bashrc"
@@ -123,23 +173,13 @@ case $(basename "$SHELL") in
 
 cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 if ! grep -Fqs "$cmd" "$profile"; then
-  fancy_echo "Adding ~/.ksr.rc to $profile"
+  print_status "Adding ~/.ksr.rc to $profile"
 
   # shellcheck disable=SC2059
   printf "\n$cmd\n" >> "$profile"
+  print_done
 fi
 
-cat > ~/.ksr.rc <<-"EOF"
-# Kickstarter init commands provisioned by the laptop script.
-# Changes will be overwritten.
-
-# Initialize rbenv
-eval "$(rbenv init -)"
-
-if [[ ! "$PATH" =~ "/usr/local/bin" ]]; then
-  export PATH="/usr/local/bin:$PATH"
-fi
-EOF
-
-
-fancy_echo "Laptop setup succeeded."
+print_status "Reticulating splines"
+print_done
+succeed "Laptop setup successful!"
