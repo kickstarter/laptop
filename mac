@@ -32,7 +32,7 @@ fail() {
 }
 EOF
 
-# shellcheck source=/dev/null`
+# shellcheck disable=SC1090
 source ~/.ksr_functions.sh
 
 exit_message() {
