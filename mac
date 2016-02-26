@@ -124,6 +124,8 @@ case $(basename "$SHELL") in
 cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 if ! grep -Fqs "$cmd" "$profile"; then
   fancy_echo "Adding ~/.ksr.rc to $profile"
+
+  # shellcheck disable=SC2059
   printf "\n$cmd\n" >> "$profile"
 fi
 
