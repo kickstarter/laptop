@@ -61,12 +61,13 @@ fi
 
 # XCode command-line tools
 # From http://stackoverflow.com/a/15371967
-while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null; do
+while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null 2>&1; do
 
-  if [ -z "$xcode_cli_installing" ]; then
-    echo "Installing XCode command line tools."
+  if [ -z "$xcode_cli_installing" ]
+  then
+    print_status "Please install XCode command line tools in the pop-up window"
     xcode-select --install
-    echo "Waiting XCode command line tools..."
+    print_status "Waiting XCode command line tools"
     xcode_cli_installing='yes'
   else
     sleep 1
