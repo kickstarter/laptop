@@ -181,6 +181,9 @@ if ! grep -Fqs "$cmd" "$profile"; then
   print_done
 fi
 
+# Use osxkeychain for git https passwords
+git config --global credential.helper osxkeychain
+
 print_status "Reticulating splines"
 print_done
 succeed "Laptop setup successful!"
