@@ -48,7 +48,7 @@ trap exit_message EXIT
 
 ## Check OS X >= 10.10
 
-if [[ `sw_vers -productVersion` != 10.1[0-1].* ]]; then
+if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
   fail "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
   exit 1
 fi
