@@ -98,6 +98,7 @@ brew "git"
 brew "openssl"
 brew "rbenv"
 brew "ruby-build"
+brew "n"
 EOF
 print_done
 

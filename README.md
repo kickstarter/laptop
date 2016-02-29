@@ -40,10 +40,13 @@ Mac OS X tools:
 Unix tools:
 
 * [Git] for version control
-* [OpenSSL] for Transport Layer Security (TLS)
+* [n] for managing versions of node JS
 * [Rbenv] and [Ruby Build] for managing versions of Ruby
 * [Pow] for running local web services
 
+
+[Git]: https://git-scm.com
+[n]: https://www.npmjs.com/package/n
 [Rbenv]: https://github.com/sstephenson/rbenv
 [Ruby Build]: https://github.com/sstephenson/ruby-build
 [Pow]: http://pow.cx
