@@ -46,7 +46,19 @@ exit_message() {
 # shellcheck disable=SC2154
 trap exit_message EXIT
 
-##
+## Check OS X >= 10.10
+
+if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
+  fail "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
+  exit 1
+fi
+
+## Make sure rvm isn't installed
+if which rvm; then
+  fail "Please uninstall rvm before continuing"
+  exit 1
+fi
+
 # Install XCode and XCode Command line tools
 if [ ! -d /Applications/Xcode.app ]
 then
@@ -84,12 +96,6 @@ if ! command -v brew >/dev/null; then
   print_done
 fi
 
-if brew list | grep -Fq brew-cask; then
-  print_status "Uninstalling obsolete Homebrew-Cask"
-  brew uninstall --force brew-cask
-  print_done
-fi
-
 print_status "Checking Homebrew formulae"
 brew bundle --file=- > /dev/null <<EOF
 tap "homebrew/services"
@@ -99,6 +105,13 @@ brew "openssl"
 brew "rbenv"
 brew "ruby-build"
 EOF
+
+##Uninstall problematic brew packages
+brew uninstall --force brew-cask 2> /dev/null
+brew uninstall --force ruby 2> /dev/null
+brew uninstall --force node 2> /dev/null
+brew uninstall --force node4-lts 2> /dev/null
+
 print_done
 
 print_status "Initializing rbenv"
