@@ -42,9 +42,11 @@ Unix tools:
 * [Git] for version control
 * [OpenSSL] for Transport Layer Security (TLS)
 * [Rbenv] and [Ruby Build] for managing versions of Ruby
+* [Pow] for running local web services
 
 [Rbenv]: https://github.com/sstephenson/rbenv
 [Ruby Build]: https://github.com/sstephenson/ruby-build
+[Pow]: http://pow.cx
 
 It should take less than 15 minutes to install from scratch  (depends on your machine), and about 2 seconds for subsequent runs.
 
