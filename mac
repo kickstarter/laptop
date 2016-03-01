@@ -10,22 +10,14 @@ cat > ~/.ksr_functions.sh <<-"EOF"
 # Helpful functions for from the kickstarter
 # laptop script
 
-# Print a status message
+# Print a status message with timestamp
 print_status() {
-  # NB: use python b/c `date` doesn't support sub-second precision on OS X
-  export laptop_start_ms=$(python -c "import time; print ('%i' % (time.time()*1000) )")
-  printf "%s ... " "$@"
+  printf "[%s] %s ... " "$(date +%H:%M:%S)" "$@"
 }
 
 # Print a check to complete the status message
 print_done() {
-  if [ -n "$laptop_start_ms" ]; then
-    duration=$(python -c "import time; print ('%.3f' % ((time.time()*1000 - $laptop_start_ms) / 1000))")
-  else
-    duration="??"
-  fi
-  unset laptop_start
-  printf "✅  (${duration}ms)\n"
+  printf "✅ \n"
 }
 
 # Print a happy green message
