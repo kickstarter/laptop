@@ -10,9 +10,9 @@ cat > ~/.ksr_functions.sh <<-"EOF"
 # Helpful functions for from the kickstarter
 # laptop script
 
-# Print a status message
+# Print a status message with timestamp
 print_status() {
-  printf "%s ... " "$@"
+  printf "[%s] %s ... " "$(date +%H:%M:%S)" "$@"
 }
 
 # Print a check to complete the status message
