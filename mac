@@ -27,8 +27,8 @@ succeed() {
 }
 
 # Print a red error
-fail() {
-  printf "\n\n$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@"
+print_error() {
+  printf "\n\n$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
 }
 EOF
 
@@ -38,7 +38,7 @@ source ~/.ksr_functions.sh
 exit_message() {
   ret=$?
  if  [ $ret -ne 0 ]; then
-   fail "Setup failed. 💔  " >&2
+   print_error "Setup failed. 💔  \n\nTry running $0 again, or paste this output in #dev-environments Slack channel"
  fi
  exit $ret
 }
@@ -49,13 +49,13 @@ trap exit_message EXIT
 ## Check OS X >= 10.10
 
 if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
-  fail "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
+  print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
   exit 1
 fi
 
 ## Make sure rvm isn't installed
 if which rvm; then
-  fail "Please uninstall rvm before continuing"
+  print_error "Please uninstall rvm before continuing"
   exit 1
 fi
 
@@ -197,6 +197,6 @@ fi
 # Use osxkeychain for git https passwords
 git config --global credential.helper osxkeychain
 
-print_status "Reticulating splines"
-print_done
-succeed "Laptop setup successful!"
+if [ -z "$SKIP_LAPTOP_SUCCESS" ]; then
+  succeed "Laptop setup successful!"
+fi
