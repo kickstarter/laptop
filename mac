@@ -38,7 +38,8 @@ source ~/.ksr_functions.sh
 exit_message() {
   ret=$?
  if  [ $ret -ne 0 ]; then
-   print_error "Setup failed. 💔  \n\nTry running $0 again, or paste this output in #dev-environments Slack channel"
+   print_error "Setup failed. 💔  "
+   print_error "Try running $0 again, or paste this output in #dev-environments Slack channel"
  fi
  exit $ret
 }
