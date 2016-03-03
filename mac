@@ -60,19 +60,6 @@ if which rvm; then
   exit 1
 fi
 
-# Install XCode and XCode Command line tools
-if [ ! -d /Applications/Xcode.app ]
-then
-  XCODE_URL='http://itunes.apple.com/us/app/xcode/id497799835'
-  echo "Missing XCode. Install XCode from the Mac App Store:"
-  echo $XCODE_URL
-  open $XCODE_URL
-  exit 1
-fi
-
-# need a way to check for this and automate:
-# sudo xcodebuild -license
-
 # XCode command-line tools
 # From http://stackoverflow.com/a/15371967
 while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null 2>&1; do
