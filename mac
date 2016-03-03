@@ -115,10 +115,11 @@ eval "$(rbenv init -)"
 print_done
 
 print_status "Checking Homebrew updater"
+mkdir -p ~/Library/LaunchAgents
 ##
 # Automatically run `brew update` every 2 hours
 # This saves ~20 seconds on subsequent runs b/c we don't have to wait for `brew update`
-cat > ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist <<- EOF
+cat > ~/Library/LaunchAgents/com.kickstarter.homebrew-updater.plist <<- EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -140,8 +141,8 @@ cat > ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist <<- EOF
 </plist>
 EOF
 
-launchctl unload ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist 2> /dev/null
-launchctl load   ~/Library/LaunchAgents/com.kickstarter.brew-updater.plist
+launchctl unload ~/Library/LaunchAgents/com.kickstarter.homebrew-updater.plist 2> /dev/null
+launchctl load   ~/Library/LaunchAgents/com.kickstarter.homebrew-updater.plist
 print_done
 
 ##
