@@ -28,7 +28,7 @@ succeed() {
 
 # Print a red error
 print_error() {
-  printf "\n\n$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
+  printf "$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
 }
 EOF
 
@@ -38,6 +38,7 @@ source ~/.ksr_functions.sh
 exit_message() {
   ret=$?
  if  [ $ret -ne 0 ]; then
+   printf "\n\n"
    print_error "Setup failed. 💔  "
    print_error "Try running $0 again, or paste this output in #dev-environments Slack channel"
  fi
