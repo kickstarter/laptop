@@ -77,13 +77,21 @@ while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null 2>&1; d
 
 done
 
-print_status "Checking FileVault"
-if ! fdesetup isactive > /dev/null; then
-  print_error "You must enable FileVault to continue."
-  exit 1
+##
+# Check that FileVault is enabled.
+#
+# NB: we test this script on a VirtualBox machine, where it's difficult/impossible to enable FileVault.
+# If the user is 'devbootstrapper' (our vbox test user), skip the FileVault check.
+if [ "$USER" == "devbootstrapper" ]; then
+  echo "⚠️  $(tput bold)$(tput setaf 1)Skipping FileVault check for bootstrapping tests.$(tput sgr0) ⚠️ "
+else
+  print_status "Checking FileVault"
+  if ! fdesetup isactive > /dev/null; then
+    print_error "You must enable FileVault to continue."
+    exit 1
+  fi
+  print_done
 fi
-print_done
-
 ##
 # Install homebrew
 if ! command -v brew >/dev/null; then
