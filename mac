@@ -94,13 +94,15 @@ fi
 
 print_status "Checking Homebrew formulae"
 brew bundle --file=- > /dev/null <<EOF
-tap "homebrew/services"
+tap "homebrew/services" # For 'brew service'
+tap "caskroom/cask" # For java
 
 brew "git"
 brew "openssl"
 brew "rbenv"
 brew "ruby-build"
 brew "n"
+cask "java"
 EOF
 
 ##Uninstall problematic brew packages
