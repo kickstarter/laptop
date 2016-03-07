@@ -193,7 +193,6 @@ if ! grep -Fqs "$cmd" "$profile"; then
   printf "\n$cmd\n" >> "$profile"
   print_done
 fi
-<<<<<<< HEAD
 
 # Set a higher ulimit to avoid
 # capistrano issues deploying to many servers
@@ -202,8 +201,6 @@ if [ $LIMIT -gt `ulimit -n` ]; then
    ulimit -n $LIMIT
 fi
 EOF
-=======
->>>>>>> master
 
 # Use osxkeychain for git https passwords
 git config --global credential.helper osxkeychain
