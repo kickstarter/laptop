@@ -150,13 +150,18 @@ print_done
 
 ##
 # Install Pow web server
-print_status "Checking Pow web server"
-if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
-  # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
-  # curl -s get.pow.cx | sh
-  curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
+if [ -n "$SKIP_POW" ]; then
+  # Add flag for folks who wish to opt out of pow.
+  echo "⚠️  $(tput bold)$(tput setaf 1)Skipping Pow setup because 'SKIP_POW' is set. YMMV.$(tput sgr0) ⚠️ "
+else
+  print_status "Checking Pow web server"
+  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
+    # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
+    # curl -s get.pow.cx | sh
+    curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
+  fi
+  print_done
 fi
-print_done
 
 ##
 # source ~/.ksr.rc from shell's rc file
