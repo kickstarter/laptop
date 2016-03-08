@@ -171,6 +171,13 @@ eval "$(rbenv init -)"
 if [[ ! "$PATH" =~ "/usr/local/bin" ]]; then
   export PATH="/usr/local/bin:$PATH"
 fi
+
+# Set a higher ulimit to avoid
+# capistrano issues deploying to many servers
+LIMIT=2048
+if [ $LIMIT -gt "$(ulimit -n)" ]; then
+  ulimit -n $LIMIT
+fi
 EOF
 
 case $(basename "$SHELL") in
@@ -183,7 +190,7 @@ case $(basename "$SHELL") in
   * )
     echo 'Unrecognized shell'
     ;;
-  esac
+esac
 
 cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 if ! grep -Fqs "$cmd" "$profile"; then
@@ -193,14 +200,6 @@ if ! grep -Fqs "$cmd" "$profile"; then
   printf "\n$cmd\n" >> "$profile"
   print_done
 fi
-
-# Set a higher ulimit to avoid
-# capistrano issues deploying to many servers
-LIMIT=2048
-if [ $LIMIT -gt "$(ulimit -n)" ]; then
-   ulimit -n $LIMIT
-fi
-EOF
 
 # Use osxkeychain for git https passwords
 git config --global credential.helper osxkeychain
