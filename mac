@@ -173,7 +173,6 @@ fi
 
 ##
 # source ~/.ksr.rc from shell's rc file
-
 cat > ~/.ksr.rc <<-"EOF"
 # Kickstarter init commands provisioned by the laptop script.
 # Changes will be overwritten.
@@ -193,6 +192,7 @@ if [ $LIMIT -gt "$(ulimit -n)" ]; then
 fi
 EOF
 
+cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 case $(basename "$SHELL") in
   bash )
     profile="$HOME/.bashrc"
@@ -200,14 +200,37 @@ case $(basename "$SHELL") in
   zsh )
     profile="$HOME/.zshrc"
     ;;
+  fish )
+    profile="$HOME/.config/fish/config.fish"
+    # Use a different command syntax
+    cmd='if test -e ~/.config/fish/ksr.fish; source ~/.config/fish/ksr.fish; end # Provisioned by ksr laptop script'
+    mkdir -p ~/.config/fish
+    cat > ~/.config/fish/ksr.fish <<-"EOF"
+# Kickstarter init commands provisioned by the laptop script.
+# Changes will be overwritten.
+
+# Initialize rbenv
+status --is-interactive; and . (rbenv init -|psub)
+
+if not echo "$PATH" |grep -Fq "/usr/local/bin"
+  export PATH="/usr/local/bin:$PATH"
+end
+
+# Set a higher ulimit to avoid
+# capistrano issues deploying to many servers
+set LIMIT 2048
+if test $LIMIT -gt (ulimit -n)
+  ulimit -n $LIMIT
+end
+EOF
+    ;;
   * )
     echo 'Unrecognized shell'
     ;;
 esac
 
-cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop script'
 if ! grep -Fqs "$cmd" "$profile"; then
-  print_status "Adding ~/.ksr.rc to $profile"
+  print_status "Adding ksr config to $profile"
 
   # shellcheck disable=SC2059
   printf "\n$cmd\n" >> "$profile"
