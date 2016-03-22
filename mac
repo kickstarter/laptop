@@ -40,7 +40,7 @@ exit_message() {
  if  [ $ret -ne 0 ]; then
    printf "\n\n"
    print_error "Setup failed. 💔  "
-   print_error "Try running $0 again, or paste this output in #dev-environments Slack channel"
+   print_error "Try running this command again, or paste this output in #dev-environments Slack channel"
  fi
  exit $ret
 }

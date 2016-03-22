@@ -18,7 +18,7 @@ curl -Ls https://raw.githubusercontent.com/kickstarter/laptop/master/mac | sh
 
 Read through the output to see if you can debug the issue yourself.
 If not, copy the lines where the script failed into a
-[new GitHub Issue](https://github.com/thoughtbot/laptop/issues/new) for us.
+[new GitHub Issue](https://github.com/kickstarter/laptop/issues/new) for us.
 Or, cut & paste the entire output into the issue.
 
 ## OS X El Capitan (10.11)
@@ -74,5 +74,6 @@ The Kickstarter laptop script is based on and inspired by
 ### License
 
 Original Laptop script © 2011-2016 thoughtbot, inc.
+
 Modifications © Kickstarter, PBC.
 [LICENSE]: LICENSE
