@@ -69,7 +69,7 @@ while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > /dev/null 2>&1; d
   then
     print_status "Please install XCode command line tools in the pop-up window"
     xcode-select --install
-    print_status "Waiting XCode command line tools"
+    print_status "Waiting for XCode command line tools"
     xcode_cli_installing='yes'
   else
     sleep 1
