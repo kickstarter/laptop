@@ -26,6 +26,11 @@ succeed() {
   printf "\n❤️  💛  💚  💙  💜 \n"
 }
 
+# Print a warning message
+print_warning() {
+  echo "⚠️  $(tput bold)$(tput setaf 1)$@$(tput sgr0) ⚠️ "
+}
+
 # Print a red error
 print_error() {
   printf "$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
@@ -83,7 +88,7 @@ done
 # NB: we test this script on a VirtualBox machine, where it's difficult/impossible to enable FileVault.
 # If the user is 'devbootstrapper' (our vbox test user), skip the FileVault check.
 if [ "$USER" == "devbootstrapper" ]; then
-  echo "⚠️  $(tput bold)$(tput setaf 1)Skipping FileVault check for bootstrapping tests.$(tput sgr0) ⚠️ "
+  print_warning "Skipping FileVault check for bootstrapping tests."
 else
   print_status "Checking FileVault"
   if ! fdesetup isactive > /dev/null; then
@@ -121,6 +126,11 @@ brew uninstall --force node4-lts 2> /dev/null
 
 print_done
 
+##
+# Configure rbenv
+if [ -n "$RBENV_ROOT" ] && [ "$RBENV_ROOT" != "${HOME}/.rbenv" ]; then
+  print_warning "Warning: RBENV_ROOT is an unexpected value (${RBENV_ROOT}). YMMV."
+fi
 print_status "Initializing rbenv"
 eval "$(rbenv init -)"
 print_done
@@ -160,7 +170,7 @@ print_done
 # Install Pow web server
 if [ -n "$SKIP_POW" ]; then
   # Add flag for folks who wish to opt out of pow.
-  echo "⚠️  $(tput bold)$(tput setaf 1)Skipping Pow setup because 'SKIP_POW' is set. YMMV.$(tput sgr0) ⚠️ "
+  print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
 else
   print_status "Checking Pow web server"
   if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
