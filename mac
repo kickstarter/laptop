@@ -206,6 +206,11 @@ cmd='if [ -e ~/.ksr.rc ]; then source ~/.ksr.rc; fi # Provisioned by ksr laptop 
 case $(basename "$SHELL") in
   bash )
     profile="$HOME/.bashrc"
+
+    # Source bashrc from bash_profile
+    if ! grep -Fqs 'source ~/.bashrc' "$HOME/.bash_profile"; then
+      echo 'source ~/.bashrc' >> "$HOME/.bash_profile"
+    fi
     ;;
   zsh )
     profile="$HOME/.zshrc"
