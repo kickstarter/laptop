@@ -167,21 +167,6 @@ launchctl load   ~/Library/LaunchAgents/com.kickstarter.homebrew-updater.plist
 print_done
 
 ##
-# Install Pow web server
-if [ -n "$SKIP_POW" ]; then
-  # Add flag for folks who wish to opt out of pow.
-  print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
-else
-  print_status "Checking Pow web server"
-  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
-    # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
-    # curl -s get.pow.cx | sh
-    curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
-  fi
-  print_done
-fi
-
-##
 # source ~/.ksr.rc from shell's rc file
 cat > ~/.ksr.rc <<-"EOF"
 # Kickstarter init commands provisioned by the laptop script.
@@ -254,6 +239,23 @@ fi
 
 # Use osxkeychain for git https passwords
 git config --global credential.helper osxkeychain
+
+##
+# Install Pow web server
+# NB: we must install pow after the shell is configured with rbenv.
+# See https://github.com/basecamp/pow/wiki/Troubleshooting#rbenv
+if [ -n "$SKIP_POW" ]; then
+  # Add flag for folks who wish to opt out of pow.
+  print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
+else
+  print_status "Checking Pow web server"
+  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
+    # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
+    # curl -s get.pow.cx | sh
+    curl -s https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/install.sh | sh
+  fi
+  print_done
+fi
 
 if [ -z "$SKIP_LAPTOP_SUCCESS" ]; then
   succeed "Laptop setup successful!"
