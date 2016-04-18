@@ -42,7 +42,7 @@ source ~/.ksr_functions.sh
 
 exit_message() {
   ret=$?
- if  [ $ret -ne 0 ]; then
+ if [ $ret -ne 0 ]; then
    printf "\n\n"
    print_error "Setup failed. 💔  "
    print_error "Try running this command again, or paste this output in #dev-environments Slack channel"
@@ -58,6 +58,12 @@ trap exit_message EXIT
 if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
   print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
   exit 1
+fi
+
+##
+# Detect if you're in a tmux session
+if [ -n "$TMUX" ]; then
+  print_error "👋  Hey, it looks like you're in a tmux session. Do you have reattach-to-user-namespace installed? If not, you're going to want to set that up before you proceed."
 fi
 
 ## Make sure rvm isn't installed
