@@ -126,7 +126,6 @@ EOF
 
 ##Uninstall problematic brew packages
 brew uninstall --force brew-cask 2> /dev/null
-brew uninstall --force ruby 2> /dev/null
 brew uninstall --force node 2> /dev/null
 brew uninstall --force node4-lts 2> /dev/null
 
