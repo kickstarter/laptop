@@ -54,12 +54,14 @@ exit_message() {
 trap exit_message EXIT
 
 ## Check OS X >= 10.10
-
-if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
-  print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
-  exit 1
+if ! [ -n "$DANGER_ZONE" ]; then
+  print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
+else
+  if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
+    print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
+    exit 1
+  fi
 fi
-
 ##
 # Detect if you're in a tmux session
 if [ -n "$TMUX" ]; then
