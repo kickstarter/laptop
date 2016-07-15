@@ -54,7 +54,7 @@ exit_message() {
 trap exit_message EXIT
 
 ## Check OS X >= 10.10
-if ! [ -n "$DANGER_ZONE" ]; then
+if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
   if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
