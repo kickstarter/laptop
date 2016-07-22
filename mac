@@ -59,6 +59,7 @@ if [ -n "$DANGER_ZONE" ]; then
 else
   if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
     print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
+    print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
   fi
 fi
