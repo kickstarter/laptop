@@ -134,6 +134,7 @@ brew "openssl"
 brew "rbenv"
 brew "ruby-build"
 brew "n"
+brew "parallel"
 cask "java"
 EOF
 
