@@ -117,7 +117,7 @@ fi
 # Workaround broken brew update from Aug 11
 # https://github.com/Homebrew/homebrew-core#update-bug
 # 1471233600 = Aug 15, 2016, after the issue.
-brew_last_change=$(git --git-dir=/usr/local/.git log -n 1 --pretty=%at)
+brew_last_change=$(git --git-dir="$(brew --repo)"/.git log -n 1 --pretty=%at)
 if [ "$brew_last_change" -le "1471233600" ]; then
   print_status "Fixing brew update bug"
   (cd "$(brew --repo)"; git fetch; git reset --hard origin/master; brew update) > /dev/null
