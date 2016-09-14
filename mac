@@ -111,7 +111,7 @@ fi
 # Install & run Docker for Mac
 # NB: if you move the docker application to the trash,
 # pkgutil still says it's installed.
-if ! [ -d "/Applications/Docker.app" ] && pkgutil --pkg-info=io.docker.pkg.docker > /dev/null 2>&1
+if ! [ -d "/Applications/Docker.app" ]
 then
 
   print_status "Installing Docker"
