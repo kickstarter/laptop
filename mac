@@ -109,29 +109,32 @@ fi
 
 ##
 # Install & run Docker for Mac
-# NB: if you move the docker application to the trash,
-# pkgutil still says it's installed.
-if ! [ -d "/Applications/Docker.app" ]
-then
+if [ -n "$SKIP_DOCKER" ]; then
+  # Add flag for folks who wish to opt out of pow.
+  print_warning "Skipping Docker setup because 'SKIP_DOCKER' is set. YMMV."
+else
+  if ! [ -d "/Applications/Docker.app" ]
+  then
 
-  print_status "Installing Docker"
-  docker_url=https://download.docker.com/mac/stable/Docker.dmg
-  docker_dmg=/tmp/Docker.dmg
-  docker_volume=/Volumes/Docker
-  curl -s -o $docker_dmg $docker_url
-  hdiutil attach $docker_dmg -nobrowse > /dev/null
-  cp -a $docker_volume/Docker.app /Applications/
-  hdiutil detach $docker_volume > /dev/null
-  rm -f $docker_dmg
+    print_status "Installing Docker"
+    docker_url=https://download.docker.com/mac/stable/Docker.dmg
+    docker_dmg=/tmp/Docker.dmg
+    docker_volume=/Volumes/Docker
+    curl -s -o $docker_dmg $docker_url
+    hdiutil attach $docker_dmg -nobrowse > /dev/null
+    cp -a $docker_volume/Docker.app /Applications/
+    hdiutil detach $docker_volume > /dev/null
+    rm -f $docker_dmg
+    print_done
+  fi
+
+  print_status "Ensuring Docker is running"
+  if ! /usr/local/bin/docker ps > /dev/null 2>&1
+  then
+    open /Applications/Docker.app
+  fi
   print_done
 fi
-
-print_status "Ensuring Docker is running"
-if ! /usr/local/bin/docker ps > /dev/null 2>&1
-then
-  open /Applications/Docker.app
-fi
-print_done
 
 ##
 # Install homebrew
