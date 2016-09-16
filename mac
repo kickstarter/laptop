@@ -53,12 +53,12 @@ exit_message() {
 # shellcheck disable=SC2154
 trap exit_message EXIT
 
-## Check OS X >= 10.10
+## Check for OS X >= 10.10, <=  10.12
 if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
-  if [[ $(sw_vers -productVersion) != 10.1[0-1].* ]]; then
-    print_error "Unsupported OS X version. Please use OS X Yosemite or El Capitan."
+  if [[ $(sw_vers -productVersion) != 10.1[0-2].* ]]; then
+    print_error "Unsupported OS X version. Please use macOS Sierra, El Capitan, or Yosemite."
     print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
   fi
@@ -138,7 +138,7 @@ brew "parallel"
 cask "java"
 EOF
 
-##Uninstall problematic brew packages
+# Uninstall problematic brew packages
 brew uninstall --force brew-cask 2> /dev/null
 brew uninstall --force node 2> /dev/null
 brew uninstall --force node4-lts 2> /dev/null
