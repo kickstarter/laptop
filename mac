@@ -35,6 +35,32 @@ print_warning() {
 print_error() {
   printf "$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
 }
+
+# Install the required version of Ruby
+check_ruby_version() {
+  print_status "Checking ruby version"
+  rbenv_path=$(which rbenv)
+  if ! $rbenv_path exec ruby -v > /dev/null 2>&1; then
+    $rbenv_path install "$(cat .ruby-version)"
+  fi
+  print_done
+}
+
+check_bundler_dependencies() {
+  print_status "Checking bundler dependencies"
+  # Install latest used version of bundler
+  BUNDLER_VERSION=$(tail -n 1 Gemfile.lock | tr -d ' ')
+  if ! bundle version 2>/dev/null |grep -Fq "$BUNDLER_VERSION"
+  then
+    gem install -q bundler -v "=$BUNDLER_VERSION" --no-ri --no-rdoc
+  fi
+
+  if ! bundle check >/dev/null
+  then
+    bundle install
+  fi
+  print_done
+}
 EOF
 
 # shellcheck disable=SC1090
