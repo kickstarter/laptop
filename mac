@@ -35,6 +35,15 @@ print_warning() {
 print_error() {
   printf "$(tput bold)$(tput setaf 1)%s$(tput sgr0)\n" "$@" >&2
 }
+
+# Install the required version of Ruby
+get_ruby_version() {
+  print_status "Checking ruby version"
+  rbenv_path=$(which rbenv)
+  if ! $rbenv_path exec ruby -v > /dev/null 2>&1; then
+    $rbenv_path install "$(cat .ruby-version)"
+  fi
+}
 EOF
 
 # shellcheck disable=SC1090
