@@ -83,7 +83,7 @@ trap exit_message EXIT
 if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
-  if [[ $(sw_vers -productVersion) != 10.1[0-2].* ]]; then
+  if [[ $(sw_vers -productVersion) != 10.1[0-2] ]]; then
     print_error "Unsupported OS X version. Please use macOS Sierra, El Capitan, or Yosemite."
     print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
