@@ -41,6 +41,9 @@ check_ruby_version() {
   print_status "Checking ruby version"
   rbenv_path=$(which rbenv)
   if ! $rbenv_path exec ruby -v > /dev/null 2>&1; then
+    # Use the system readline so ruby doesn't break when the homebrew
+    # readline version changes
+    export RUBY_CONFIGURE_OPTS=--with-readline-dir="/usr/lib"
     $rbenv_path install "$(cat .ruby-version)"
   fi
   print_done
