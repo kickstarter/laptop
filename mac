@@ -188,13 +188,16 @@ brew bundle --file=- > /dev/null <<EOF
 tap "homebrew/services" # For 'brew service'
 tap "caskroom/cask" # For java
 
+cask "java"
+
+brew "awscli"
 brew "git"
+brew "jq"
+brew "n"
 brew "openssl"
+brew "parallel"
 brew "rbenv"
 brew "ruby-build"
-brew "n"
-brew "parallel"
-cask "java"
 EOF
 
 # Uninstall problematic brew packages
