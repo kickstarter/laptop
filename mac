@@ -69,7 +69,7 @@ EOF
 # shellcheck disable=SC1090
 source ~/.ksr_functions.sh
 
-tmp_output=$(mktemp)
+tmp_output=$(mktemp -t tmp)
 exit_message() {
   ret=$?
  if [ $ret -ne 0 ]; then
