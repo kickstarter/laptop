@@ -190,6 +190,13 @@ if [ "$brew_last_change" -le "1471233600" ]; then
   print_done
 fi
 
+# Fix permission issue on /usr/local on OS 10.12
+if [ ! -w /usr/local ]; then
+  print_status "Fixing /usr/local permissions issue"
+  sudo chown -R "$(whoami)" /usr/local
+  print_done
+fi
+
 print_status "Checking Homebrew formulae"
 brew bundle --file=- > "$tmp_output" <<EOF
 tap "homebrew/services" # For 'brew service'
