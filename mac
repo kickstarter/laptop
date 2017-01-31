@@ -193,8 +193,7 @@ fi
 # Fix permission issue on /usr/local on OS 10.12
 if [ ! -w /usr/local ]; then
   print_status "Fixing /usr/local permissions issue"
-  sudo chgrp -R staff /usr/local
-  sudo chmod g+w /usr/local
+  sudo chown -R $(whoami) /usr/local
   print_done
 fi
 
