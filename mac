@@ -213,13 +213,20 @@ brew "parallel"
 brew "rbenv"
 brew "ruby-build"
 EOF
+print_done
+
+function uninstall_homebrew_package {
+  if brew ls --versions "$1" > /dev/null; then
+    print_status "Uninstalling Homebrew package ‘$1’"
+    brew uninstall --force "$1" > /dev/null
+    print_done
+  fi
+}
 
 # Uninstall problematic brew packages
-brew uninstall --force brew-cask 2> /dev/null
-brew uninstall --force node 2> /dev/null
-brew uninstall --force node4-lts 2> /dev/null
-
-print_done
+uninstall_homebrew_package brew-cask
+uninstall_homebrew_package node
+uninstall_homebrew_package node4-tls
 
 ##
 # Configure rbenv
