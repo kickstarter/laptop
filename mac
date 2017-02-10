@@ -218,7 +218,7 @@ print_done
 function uninstall_homebrew_package {
   if brew ls --versions "$1" > /dev/null; then
     print_status "Uninstalling Homebrew package ‘$1’"
-    brew uninstall --force "$1" > /dev/null
+    brew uninstall --force "$1" > /dev/null 2> "$tmp_output"
     print_done
   fi
 }
