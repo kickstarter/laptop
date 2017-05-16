@@ -281,6 +281,10 @@ if [[ ! "$PATH" =~ "/usr/local/bin" ]]; then
   export PATH="/usr/local/bin:$PATH"
 fi
 
+if [[ ! "$PATH" =~ "$HOME/.yarn/bin" ]]; then
+  export PATH="$HOME/.yarn/bin:$PATH"
+fi
+
 # Set a higher ulimit to avoid
 # capistrano issues deploying to many servers
 LIMIT=2048
