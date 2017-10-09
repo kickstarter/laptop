@@ -84,12 +84,12 @@ exit_message() {
 # shellcheck disable=SC2154
 trap exit_message EXIT
 
-## Check for OS X >= 10.10, <=  10.12
+## Check for OS X >= 10.10, <=  10.13
 if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
-  if ! sw_vers -productVersion | grep -q "^10.1[0-2]"; then
-    print_error "Unsupported OS X version. Please use macOS Sierra, El Capitan, or Yosemite."
+  if ! sw_vers -productVersion | grep -q "^10.1[0-3]"; then
+    print_error "Unsupported OS X version. Please use macOS High Sierra, Sierra, El Capitan, or Yosemite."
     print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
   fi
@@ -179,20 +179,11 @@ if ! command -v brew >/dev/null; then
   print_done
 fi
 
-# Workaround broken brew update from Aug 11
-# https://github.com/Homebrew/homebrew-core#update-bug
-# 1471233600 = Aug 15, 2016, after the issue.
-brew_last_change=$(git --git-dir="$(brew --repo)"/.git log -n 1 --pretty=%at)
-if [ "$brew_last_change" -le "1471233600" ]; then
-  print_status "Fixing brew update bug"
-  (cd "$(brew --repo)"; git fetch; git reset --hard origin/master; brew update) > /dev/null
-  print_done
-fi
-
-# Fix permission issue on /usr/local on OS 10.12
-if [ ! -w /usr/local ]; then
+# Fix permission issue on /usr/local on OS 10.12 or less
+# NOTE: this may be obsolete
+if sw_vers -productVersion | grep -q "^10.1[0-3]" && [ ! -w "$(brew --prefix)/Cellar" ]; then
   print_status "Fixing /usr/local permissions issue"
-  sudo chown -R "$(whoami)" /usr/local
+  sudo chown -R "$(whoami)" sudo chown -R "$(whoami)" "$(brew --prefix)"/*
   print_done
 fi
 
