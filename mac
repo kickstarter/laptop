@@ -183,7 +183,7 @@ fi
 # NOTE: this may be obsolete
 if sw_vers -productVersion | grep -q "^10.1[0-3]" && [ ! -w "$(brew --prefix)/Cellar" ]; then
   print_status "Fixing /usr/local permissions issue"
-  sudo chown -R "$(whoami)" sudo chown -R "$(whoami)" "$(brew --prefix)"/*
+  sudo chown -R "$(whoami)" "$(brew --prefix)"/*
   print_done
 fi
 
