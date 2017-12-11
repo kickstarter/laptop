@@ -312,8 +312,7 @@ else
   # Increase pow's default idle timeout to 1hr
   echo "export POW_TIMEOUT=3600" > ~/.powconfig
   print_status "Checking Pow web server"
-  response=$(curl --fail -sH host:pow "127.0.0.1/status.json" | jq .version)
-  if  [ response != '0.6.0' ]; then
+  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
     # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
     # curl -s get.pow.cx | sh
     curl -s https://raw.githubusercontent.com/kickstarter/pow/fix-launchctl-bootstrap/install.sh | sh
