@@ -187,6 +187,15 @@ if sw_vers -productVersion | grep -q "^10.1[0-3]" && [ ! -w "$(brew --prefix)/Ce
   print_done
 fi
 
+# At the time of writing, the ‘n’ (node.js version manager) package doesn't
+# automatically create the `/usr/local/n` directory automatically, so an error
+# occurs when `n` is tried for the first time. So we'll manually create the
+# directory ourselves.
+if [ ! -d /usr/local/n ]; then
+  sudo mkdir /usr/local/n
+  sudo chown $USER:admin /usr/local/n
+fi
+
 print_status "Checking Homebrew formulae"
 brew bundle --file=- > "$tmp_output" <<EOF
 tap "homebrew/services" # For 'brew service'
