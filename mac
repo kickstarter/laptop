@@ -193,7 +193,7 @@ fi
 # directory ourselves.
 if [ ! -d /usr/local/n ]; then
   sudo mkdir /usr/local/n
-  sudo chown $USER:admin /usr/local/n
+  sudo chown "$USER:admin" /usr/local/n
 fi
 
 print_status "Checking Homebrew formulae"
