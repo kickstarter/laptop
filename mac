@@ -52,11 +52,7 @@ check_bundler_dependencies() {
   print_status "Checking bundler dependencies"
   # Install latest used version of bundler
   BUNDLER_VERSION=$(tail -n 1 Gemfile.lock | tr -d ' ')
-  if ! bundle version 2>/dev/null |grep -Fq "$BUNDLER_VERSION"
-  then
-    gem install -q bundler -v "=$BUNDLER_VERSION" --no-ri --no-rdoc
-  fi
-
+  gem install -q bundler -v "=$BUNDLER_VERSION" --no-ri --no-rdoc
   if ! bundle check >/dev/null
   then
     bundle install
