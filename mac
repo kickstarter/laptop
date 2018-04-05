@@ -69,7 +69,7 @@ exit_message() {
   ret=$?
  if [ $ret -ne 0 ]; then
    if [ -e "$tmp_output" ]; then cat "$tmp_output"; fi
-   printf "\n\n"
+   printf "\\n\\n"
    print_error "Setup failed. 💔  "
    print_error "Try running this command again, or paste this output in #dev-environments Slack channel"
  fi
@@ -299,7 +299,7 @@ if ! grep -Fqs "$cmd" "$profile"; then
   print_status "Adding ksr config to $profile"
 
   # shellcheck disable=SC2059
-  printf "\n$cmd\n" >> "$profile"
+  printf "\\n$cmd\\n" >> "$profile"
   print_done
 fi
 
