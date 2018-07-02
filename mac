@@ -338,6 +338,13 @@ PUMA_DEV_DOMAIN=test
 if [ -n "$SKIP_PUMA_DEV" ]; then
   print_warning "Skipping Puma-Dev setup because 'SKIP_PUMA_DEV' is set."
 else
+
+  # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
+  print_warning "TEMPORARILY ALWAYS UNINSTALL POW"
+  # Uninstall pow
+  curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
+  # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
+
   print_status "Checking Puma-Dev server"
   if  ! curl --fail -sH "Host: puma-dev" localhost/status  > /dev/null; then
     echo "Setting up PUMA" # puma-dev is installed by homebrew
