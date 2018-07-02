@@ -342,7 +342,12 @@ else
   # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
   print_warning "TEMPORARILY ALWAYS UNINSTALL POW"
   # Uninstall pow
-  curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
+  # If pow is installed, uninstall
+  POW_CURRENT_PATH="$HOME/Library/Application Support/Pow/Current"
+
+  if [ -d "$POW_CURRENT_PATH" ] && [ ! -a "$POWD_PLIST_PATH" ] && [ ! -a "$FIREWALL_PLIST_PATH" ]; then
+    curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
+  fi
   # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
 
   print_status "Checking Puma-Dev server"
