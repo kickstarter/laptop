@@ -6,6 +6,8 @@
 
 set -e
 
+SKIP_POW=true
+
 cat > ~/.ksr_functions.sh <<-"EOF"
 # Helpful functions for from the kickstarter
 # laptop script
@@ -198,6 +200,7 @@ print_status "Checking Homebrew formulae"
 brew bundle --file=- > "$tmp_output" <<EOF
 tap "homebrew/services" # For 'brew service'
 tap "caskroom/cask" # For java
+tap "puma/puma" # For puma-dev
 
 cask "java"
 
@@ -207,6 +210,7 @@ brew "jq"
 brew "n"
 brew "openssl"
 brew "parallel"
+brew "puma-dev"
 brew "rbenv"
 brew "ruby-build"
 EOF
@@ -325,6 +329,30 @@ else
     # curl -s get.pow.cx | sh
     curl -s https://raw.githubusercontent.com/kickstarter/pow/fix-launchctl-bootstrap/install.sh | sh
   fi
+  print_done
+fi
+
+##
+# Install puma-dev development server
+PUMA_DEV_DOMAIN=test
+if [ -n "$SKIP_PUMA_DEV" ]; then
+  print_warning "Skipping Puma-Dev setup because 'SKIP_PUMA_DEV' is set."
+else
+  print_status "Checking Puma-Dev server"
+  if  ! curl --fail -sH "Host: puma-dev" localhost/status  > /dev/null; then
+    echo "Setting up PUMA" # puma-dev is installed by homebrew
+    sudo puma-dev -setup -d "$PUMA_DEV_DOMAIN"
+    puma-dev -install -d "$PUMA_DEV_DOMAIN"
+#    puma-dev -uninstall -d "$PUMA_DEV_DOMAIN"
+  fi
+
+  if ! security verify-cert -c ~/Library/Application\ Support/io.puma.dev/cert.pem; then
+    echo "Installing Certificate"
+    # Return value is pre-quoted with extra space, xargs clears it by echoing
+    login_keychain=$(security login-keychain|xargs)
+    security add-trusted-cert -k ${login_keychain} ~/Library/Application\ Support/io.puma.dev/cert.pem
+  fi
+
   print_done
 fi
 
