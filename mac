@@ -320,6 +320,14 @@ if [ -n "$SKIP_POW" ]; then
   # Add flag for folks who wish to opt out of pow.
   print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
 else
+
+  # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
+  # If you're using pow, you're not using puma-dev ?
+  export SKIP_PUMA_DEV=true
+  puma-dev -uninstall -d test
+  # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
+
+
   # Increase pow's default idle timeout to 1hr
   echo "export POW_TIMEOUT=3600" > ~/.powconfig
   echo "export POW_DOMAINS=test" >> ~/.powconfig
@@ -334,13 +342,12 @@ fi
 
 ##
 # Install puma-dev development server
-PUMA_DEV_DOMAIN=test
 if [ -n "$SKIP_PUMA_DEV" ]; then
   print_warning "Skipping Puma-Dev setup because 'SKIP_PUMA_DEV' is set."
 else
 
-  # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
-  print_warning "TEMPORARILY ALWAYS UNINSTALL POW"
+  # ------------ TEMPORARILY UNINSTALL POW ------------------------
+  print_warning "TEMPORARILY UNINSTALL POW"
   # Uninstall pow
   # If pow is installed, uninstall
   POW_CURRENT_PATH="$HOME/Library/Application Support/Pow/Current"
@@ -348,14 +355,14 @@ else
   if [ -d "$POW_CURRENT_PATH" ] && [ ! -a "$POWD_PLIST_PATH" ] && [ ! -a "$FIREWALL_PLIST_PATH" ]; then
     curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
   fi
-  # ------------ TEMPORARILY ALWAYS UNINSTALL POW ------------------------
+  # ------------ TEMPORARILY UNINSTALL POW ------------------------
 
   print_status "Checking Puma-Dev server"
   if  ! curl --fail -sH "Host: puma-dev" localhost/status  > /dev/null; then
     echo "Setting up PUMA" # puma-dev is installed by homebrew
-    sudo puma-dev -setup -d "$PUMA_DEV_DOMAIN"
-    puma-dev -install -d "$PUMA_DEV_DOMAIN"
-#    puma-dev -uninstall -d "$PUMA_DEV_DOMAIN"
+    sudo puma-dev -setup -d test
+    puma-dev -install -d test
+#    puma-dev -uninstall -d test
   fi
 
   if ! security verify-cert -c ~/Library/Application\ Support/io.puma.dev/cert.pem; then
