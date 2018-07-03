@@ -312,6 +312,44 @@ fi
 # Use osxkeychain for git https passwords
 git config --global credential.helper osxkeychain
 
+
+## Puma-Dev Management
+puma_certificate_file="${HOME}/Library/Application Support/io.puma.dev/cert.pem"
+
+# Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
+function deconfigure_puma_dev {
+  puma-dev -uninstall -d test
+  security remove-trusted-cert "${puma_certificate_file}"
+}
+
+# Configure puma-dev, assumes that the puma-dev gem is installed
+function configure_puma_dev {
+  if  ! curl --fail -sH "Host: puma-dev" localhost/status > /dev/null; then
+    echo "Configuring puma-dev" # puma-dev is installed by homebrew
+    sudo puma-dev -setup -d test
+    puma-dev -install -d test
+  fi
+
+  if ! security verify-cert -c "${puma_certificate_file}" > /dev/null; then
+    echo "Installing Certificate"
+    # Return value is pre-quoted with extra space, xargs clears it by echoing
+    login_keychain=$(security login-keychain|xargs)
+    # shellcheck disable=SC2086
+    security add-trusted-cert -k ${login_keychain} "${puma_certificate_file}"
+  fi
+}
+
+# Uninstall pow, if installed
+function uninstall_pow {
+  POW_CURRENT_PATH="${HOME}/Library/Application Support/Pow/Current"
+
+  if [ -d "$POW_CURRENT_PATH" ] && [ ! -a "$POWD_PLIST_PATH" ] && [ ! -a "$FIREWALL_PLIST_PATH" ]; then
+    print_warning "Uninstalling POW"
+    curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
+  fi
+}
+
+
 ##
 # Install Pow web server
 # NB: we must install pow after the shell is configured with rbenv.
@@ -322,9 +360,9 @@ if [ -n "$SKIP_POW" ]; then
 else
 
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
-  # If you're using pow, you're not using puma-dev ?
+  # If you're using pow, you're not using puma-dev
   export SKIP_PUMA_DEV=true
-  puma-dev -uninstall -d test
+  deconfigure_puma_dev
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
 
 
@@ -343,35 +381,14 @@ fi
 ##
 # Install puma-dev development server
 if [ -n "$SKIP_PUMA_DEV" ]; then
-  print_warning "Skipping Puma-Dev setup because 'SKIP_PUMA_DEV' is set."
+  print_warning "Skipping puma-dev setup because 'SKIP_PUMA_DEV' is set."
 else
-
   # ------------ TEMPORARILY UNINSTALL POW ------------------------
-  print_warning "TEMPORARILY UNINSTALL POW"
-  # Uninstall pow
-  # If pow is installed, uninstall
-  POW_CURRENT_PATH="$HOME/Library/Application Support/Pow/Current"
-
-  if [ -d "$POW_CURRENT_PATH" ] && [ ! -a "$POWD_PLIST_PATH" ] && [ ! -a "$FIREWALL_PLIST_PATH" ]; then
-    curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
-  fi
+  uninstall_pow
   # ------------ TEMPORARILY UNINSTALL POW ------------------------
 
-  print_status "Checking Puma-Dev server"
-  if  ! curl --fail -sH "Host: puma-dev" localhost/status  > /dev/null; then
-    echo "Setting up PUMA" # puma-dev is installed by homebrew
-    sudo puma-dev -setup -d test
-    puma-dev -install -d test
-#    puma-dev -uninstall -d test
-  fi
-
-  if ! security verify-cert -c ~/Library/Application\ Support/io.puma.dev/cert.pem; then
-    echo "Installing Certificate"
-    # Return value is pre-quoted with extra space, xargs clears it by echoing
-    login_keychain=$(security login-keychain|xargs)
-    security add-trusted-cert -k ${login_keychain} ~/Library/Application\ Support/io.puma.dev/cert.pem
-  fi
-
+  print_status "Checking puma-dev server"
+  configure_puma_dev
   print_done
 fi
 
