@@ -314,10 +314,17 @@ git config --global credential.helper osxkeychain
 ## Puma-Dev Management
 puma_certificate_file="${HOME}/Library/Application Support/io.puma.dev/cert.pem"
 
+function puma_certificate_installed {
+  security verify-cert -c "${puma_certificate_file}" > /dev/null 2>&1
+}
+
+
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
   puma-dev -uninstall -d test
-  security remove-trusted-cert "${puma_certificate_file}"
+  if puma_certificate_installed; then
+    security remove-trusted-cert "${puma_certificate_file}"
+  fi
 }
 
 # Configure puma-dev, assumes that the puma-dev gem is installed
@@ -328,8 +335,8 @@ function configure_puma_dev {
     puma-dev -install -d test
   fi
 
-  if ! security verify-cert -c "${puma_certificate_file}" > /dev/null; then
-    echo "Installing Certificate"
+  if ! puma_certificate_installed; then
+    echo "Installing Certificate (password required)"
     # Return value is pre-quoted with extra space, xargs clears it by echoing
     login_keychain=$(security login-keychain|xargs)
     # shellcheck disable=SC2086
@@ -347,6 +354,18 @@ function uninstall_pow {
   fi
 }
 
+# Temporarily allow switching between pow and puma-dev with this flag.
+export DEVELOPMENT_SERVER=${DEVELOPMENT_SERVER:=pow}
+print_status "Using development server ${DEVELOPMENT_SERVER} (set with DEVELOPMENT_SERVER=)"
+print_done
+
+if [[ "$DEVELOPMENT_SERVER" != "puma-dev" ]]; then
+  export SKIP_PUMA_DEV=1
+fi
+
+if [[ "$DEVELOPMENT_SERVER" != "pow" ]]; then
+  export SKIP_POW=1
+fi
 
 ##
 # Install Pow web server
@@ -358,8 +377,6 @@ if [ -n "$SKIP_POW" ]; then
 else
 
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
-  # If you're using pow, you're not using puma-dev
-  export SKIP_PUMA_DEV=true
   deconfigure_puma_dev
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
 
