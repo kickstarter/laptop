@@ -6,8 +6,6 @@
 
 set -e
 
-SKIP_POW=true
-
 cat > ~/.ksr_functions.sh <<-"EOF"
 # Helpful functions for from the kickstarter
 # laptop script
