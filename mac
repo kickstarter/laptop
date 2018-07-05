@@ -69,6 +69,7 @@ exit_message() {
   ret=$?
  if [ $ret -ne 0 ]; then
    if [ -e "$tmp_output" ]; then cat "$tmp_output"; fi
+   # shellcheck disable=SC1117
    printf "\n\n"
    print_error "Setup failed. 💔  "
    print_error "Try running this command again, or paste this output in #dev-environments Slack channel"
@@ -97,6 +98,7 @@ if [ -n "$TMUX" ]; then
 fi
 
 ## Make sure rvm isn't installed
+# shellcheck disable=SC2230
 if which rvm; then
   print_error "Please uninstall rvm before continuing"
   exit 1
@@ -298,7 +300,7 @@ esac
 if ! grep -Fqs "$cmd" "$profile"; then
   print_status "Adding ksr config to $profile"
 
-  # shellcheck disable=SC2059
+  # shellcheck disable=SC2059,SC1117
   printf "\n$cmd\n" >> "$profile"
   print_done
 fi
