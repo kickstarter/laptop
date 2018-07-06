@@ -318,12 +318,19 @@ function puma_certificate_installed {
   security verify-cert -c "${puma_certificate_file}" > /dev/null 2>&1
 }
 
+# Sets a non-zero return code if cannot get to `test`
+function can_resolve_test_domain {
+  curl --fail --silent -I  http://test  2>&1 > /dev/null
+}
+
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
+  puma-dev -stop
   puma-dev -uninstall -d test
   if puma_certificate_installed; then
     security remove-trusted-cert "${puma_certificate_file}"
   fi
+  echo "You may need to remove HSTS settings for chrome://net-internals/#hsts"
 }
 
 # Configure puma-dev, assumes that the puma-dev gem is installed
@@ -387,9 +394,20 @@ else
   echo "export POW_TIMEOUT=3600" > ~/.powconfig
   echo "export POW_DOMAINS=test" >> ~/.powconfig
   print_status "Checking Pow web server"
-  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
+
+  pow_install_needed=""
+  if  ! curl --fail -sH host:pow "127.0.0.1/status.json" > /dev/null; then
+    pow_install_needed=true
+  fi
+
+  if ! can_resolve_test_domain; then
+    pow_install_needed=true
+  fi
+
+  if [ -n "$pow_install_needed" ]; then
     # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
     # curl -s get.pow.cx | sh
+    echo "Installing Pow"
     curl -s https://raw.githubusercontent.com/kickstarter/pow/fix-launchctl-bootstrap/install.sh | sh
   fi
   print_done
