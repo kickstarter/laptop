@@ -357,7 +357,7 @@ function configure_puma_dev {
 function uninstall_pow {
   POW_CURRENT_PATH="${HOME}/Library/Application Support/Pow/Current"
 
-  if [ -d "$POW_CURRENT_PATH" ] && [ ! -a "$POWD_PLIST_PATH" ] && [ ! -a "$FIREWALL_PLIST_PATH" ]; then
+  if [ -d "$POW_CURRENT_PATH" ]; then
     print_warning "Uninstalling POW"
     curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
   fi
