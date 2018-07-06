@@ -325,8 +325,11 @@ function can_resolve_test_domain {
 
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
-  puma-dev -stop
-  puma-dev -uninstall -d test
+  if command -v puma-dev; then
+    puma-dev -stop || true
+    puma-dev -uninstall -d test
+  fi
+
   if puma_certificate_installed; then
     security remove-trusted-cert "${puma_certificate_file}"
   fi
