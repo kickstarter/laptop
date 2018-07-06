@@ -318,11 +318,6 @@ function puma_certificate_installed {
   security verify-cert -c "${puma_certificate_file}" > /dev/null 2>&1
 }
 
-# Sets a non-zero return code if cannot get to `test`
-function can_resolve_test_domain {
-  curl --fail --silent -I  http://test  2>&1 > /dev/null
-}
-
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
   if command -v puma-dev; then
@@ -403,7 +398,8 @@ else
     pow_install_needed=true
   fi
 
-  if ! can_resolve_test_domain; then
+  # Puma-dev will 500 error on http://test, but Pow will succeed
+  if ! curl --fail --silent -I  http://test > /dev/null 2>&1; then
     pow_install_needed=true
   fi
 
