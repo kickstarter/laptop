@@ -308,32 +308,35 @@ if ! grep -Fqs "$cmd" "$profile"; then
 fi
 
 # Use osxkeychain for git https passwords
+print_status "Configuring osxkeychain for git passwords"
 git config --global credential.helper osxkeychain
-
+print_done
 
 ## Puma-Dev Management
 puma_certificate_file="${HOME}/Library/Application Support/io.puma.dev/cert.pem"
 
 function puma_certificate_installed {
-  security verify-cert -c "${puma_certificate_file}" > /dev/null 2>&1
+  security verify-cert -c "${puma_certificate_file}" >> "$tmp_output" 2>&1
 }
 
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
-  if command -v puma-dev; then
-    puma-dev -stop || true
-    puma-dev -uninstall -d test
+  if command -v puma-dev >> "$tmp_output"; then
+    # Only attempt to disable .test DNS resolution if puma was actually running.
+    if puma-dev -stop >> "$tmp_output" 2>&1; then
+      puma-dev -uninstall -d test
+    fi
   fi
 
   if puma_certificate_installed; then
+    print_warning "You may need to remove HSTS settings for Chrome - chrome://net-internals/#hsts"
     security remove-trusted-cert "${puma_certificate_file}"
   fi
-  echo "You may need to remove HSTS settings for chrome://net-internals/#hsts"
 }
 
 # Configure puma-dev, assumes that the puma-dev gem is installed
 function configure_puma_dev {
-  if  ! curl --fail -sH "Host: puma-dev" localhost/status > /dev/null; then
+  if ! curl --fail -sH "Host: puma-dev" localhost/status >> "$tmp_output"; then
     echo "Configuring puma-dev" # puma-dev is installed by homebrew
     sudo puma-dev -setup -d test
     puma-dev -install -d test
@@ -346,6 +349,8 @@ function configure_puma_dev {
     # shellcheck disable=SC2086
     security add-trusted-cert -k ${login_keychain} "${puma_certificate_file}"
   fi
+
+  [[ `curl --silent http://test` == 'unknown app' ]]
 }
 
 # Uninstall pow, if installed
@@ -358,9 +363,10 @@ function uninstall_pow {
   fi
 }
 
+# ----------- DEVELOPMENT_SERVER -----------
 # Temporarily allow switching between pow and puma-dev with this flag.
 export DEVELOPMENT_SERVER=${DEVELOPMENT_SERVER:=pow}
-print_status "Using development server ${DEVELOPMENT_SERVER} (set with DEVELOPMENT_SERVER=)"
+print_status "Using DEVELOPMENT_SERVER=$(tput bold)$(tput setaf 7)${DEVELOPMENT_SERVER}$(tput sgr0)"
 print_done
 
 if [[ "$DEVELOPMENT_SERVER" != "puma-dev" ]]; then
@@ -370,6 +376,7 @@ fi
 if [[ "$DEVELOPMENT_SERVER" != "pow" ]]; then
   export SKIP_POW=1
 fi
+# ----------- DEVELOPMENT_SERVER -----------
 
 ##
 # Install Pow web server
@@ -384,7 +391,9 @@ if [ -n "$SKIP_POW" ]; then
 else
 
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
+  print_status "Disabling Puma-dev"
   deconfigure_puma_dev
+  print_done
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
 
 
@@ -398,8 +407,9 @@ else
     pow_install_needed=true
   fi
 
+  # Will pow resolve for .test domains?
   # Puma-dev will 500 error on http://test, but Pow will succeed
-  if ! curl --fail --silent -I  http://test > /dev/null 2>&1; then
+  if ! curl --fail --silent -I http://test > /dev/null 2>&1; then
     pow_install_needed=true
   fi
 
@@ -424,6 +434,7 @@ else
   # ------------ TEMPORARILY UNINSTALL POW ------------------------
 
   print_status "Checking puma-dev server"
+  echo > "$tmp_output"
   configure_puma_dev
   print_done
 fi
