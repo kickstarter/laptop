@@ -185,7 +185,7 @@ if sw_vers -productVersion | grep -q "^10.1[0-3]" && [ ! -w "$(brew --prefix)/Ce
   print_done
 fi
 
-# At the time of writing, the ‘n’ (node.js version manager) package doesn't
+# At the time of writing (2018-01-09), the ‘n’ (node.js version manager) package doesn't
 # automatically create the `/usr/local/n` directory automatically, so an error
 # occurs when `n` is tried for the first time. So we'll manually create the
 # directory ourselves.
@@ -198,6 +198,7 @@ print_status "Checking Homebrew formulae"
 brew bundle --file=- > "$tmp_output" <<EOF
 tap "homebrew/services" # For 'brew service'
 tap "caskroom/cask" # For java
+tap "puma/puma" # For puma-dev
 
 cask "java"
 
@@ -207,6 +208,7 @@ brew "jq"
 brew "n"
 brew "openssl"
 brew "parallel"
+brew "puma-dev"
 brew "rbenv"
 brew "ruby-build"
 EOF
@@ -306,7 +308,75 @@ if ! grep -Fqs "$cmd" "$profile"; then
 fi
 
 # Use osxkeychain for git https passwords
+print_status "Configuring osxkeychain for git passwords"
 git config --global credential.helper osxkeychain
+print_done
+
+## Puma-Dev Management
+puma_certificate_file="${HOME}/Library/Application Support/io.puma.dev/cert.pem"
+
+function puma_certificate_installed {
+  security verify-cert -c "${puma_certificate_file}" >> "$tmp_output" 2>&1
+}
+
+# Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
+function deconfigure_puma_dev {
+  if command -v puma-dev >> "$tmp_output"; then
+    # Only attempt to disable .test DNS resolution if puma was actually running.
+    if puma-dev -stop >> "$tmp_output" 2>&1; then
+      puma-dev -uninstall -d test
+    fi
+  fi
+
+  if puma_certificate_installed; then
+    print_warning "You may need to remove HSTS settings for Chrome - chrome://net-internals/#hsts"
+    security remove-trusted-cert "${puma_certificate_file}"
+  fi
+}
+
+# Configure puma-dev, assumes that the puma-dev gem is installed
+function configure_puma_dev {
+  if ! curl --fail -sH "Host: puma-dev" localhost/status >> "$tmp_output"; then
+    echo "Configuring puma-dev" # puma-dev is installed by homebrew
+    sudo puma-dev -setup -d test
+    puma-dev -install -d test
+  fi
+
+  if ! puma_certificate_installed; then
+    echo "Installing Certificate (password required)"
+    # Return value is pre-quoted with extra space, xargs clears it by echoing
+    login_keychain=$(security login-keychain|xargs)
+    # shellcheck disable=SC2086
+    security add-trusted-cert -k ${login_keychain} "${puma_certificate_file}"
+  fi
+
+  [[ $(curl --silent http://test) == 'unknown app' ]]
+}
+
+# Uninstall pow, if installed
+function uninstall_pow {
+  POW_CURRENT_PATH="${HOME}/Library/Application Support/Pow/Current"
+
+  if [ -d "$POW_CURRENT_PATH" ]; then
+    print_warning "Uninstalling POW"
+    curl -Ls https://raw.githubusercontent.com/ktheory/pow/fix-launchctl-bootstrap/uninstall.sh | bash
+  fi
+}
+
+# ----------- DEVELOPMENT_SERVER -----------
+# Temporarily allow switching between pow and puma-dev with this flag.
+export DEVELOPMENT_SERVER=${DEVELOPMENT_SERVER:=pow}
+print_status "Using DEVELOPMENT_SERVER=$(tput bold)$(tput setaf 7)${DEVELOPMENT_SERVER}$(tput sgr0)"
+print_done
+
+if [[ "$DEVELOPMENT_SERVER" != "puma-dev" ]]; then
+  export SKIP_PUMA_DEV=1
+fi
+
+if [[ "$DEVELOPMENT_SERVER" != "pow" ]]; then
+  export SKIP_POW=1
+fi
+# ----------- DEVELOPMENT_SERVER -----------
 
 ##
 # Install Pow web server
@@ -314,17 +384,58 @@ git config --global credential.helper osxkeychain
 # See https://github.com/basecamp/pow/wiki/Troubleshooting#rbenv
 if [ -n "$SKIP_POW" ]; then
   # Add flag for folks who wish to opt out of pow.
-  print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
+
+  if [[ "$DEVELOPMENT_SERVER" == "pow" ]]; then
+     print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
+  fi
 else
+
+  # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
+  print_status "Disabling Puma-dev"
+  deconfigure_puma_dev
+  print_done
+  # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
+
+
   # Increase pow's default idle timeout to 1hr
   echo "export POW_TIMEOUT=3600" > ~/.powconfig
   echo "export POW_DOMAINS=test" >> ~/.powconfig
   print_status "Checking Pow web server"
-  if  ! curl --fail -sH host:pow "127.0.0.1/status.json"  > /dev/null; then
+
+  pow_install_needed=""
+  if  ! curl --fail -sH host:pow "127.0.0.1/status.json" > /dev/null; then
+    pow_install_needed=true
+  fi
+
+  # Will pow resolve for .test domains?
+  # Puma-dev will 500 error on http://test, but Pow will succeed
+  if ! curl --fail --silent -I http://test > /dev/null 2>&1; then
+    pow_install_needed=true
+  fi
+
+  if [ -n "$pow_install_needed" ]; then
     # Use custom install script until https://github.com/basecamp/pow/pull/505 is released
     # curl -s get.pow.cx | sh
+    echo "Installing Pow"
     curl -s https://raw.githubusercontent.com/kickstarter/pow/fix-launchctl-bootstrap/install.sh | sh
   fi
+  print_done
+fi
+
+##
+# Install puma-dev development server
+if [ -n "$SKIP_PUMA_DEV" ]; then
+  if [[ "$DEVELOPMENT_SERVER" == "puma-dev" ]]; then
+    print_warning "Skipping puma-dev setup because 'SKIP_PUMA_DEV' is set."
+  fi
+else
+  # ------------ TEMPORARILY UNINSTALL POW ------------------------
+  uninstall_pow
+  # ------------ TEMPORARILY UNINSTALL POW ------------------------
+
+  print_status "Checking puma-dev server"
+  echo > "$tmp_output"
+  configure_puma_dev
   print_done
 fi
 
