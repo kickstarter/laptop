@@ -185,7 +185,7 @@ if sw_vers -productVersion | grep -q "^10.1[0-3]" && [ ! -w "$(brew --prefix)/Ce
   print_done
 fi
 
-# At the time of writing, the ‘n’ (node.js version manager) package doesn't
+# At the time of writing (2018-01-09), the ‘n’ (node.js version manager) package doesn't
 # automatically create the `/usr/local/n` directory automatically, so an error
 # occurs when `n` is tried for the first time. So we'll manually create the
 # directory ourselves.
@@ -318,7 +318,6 @@ function puma_certificate_installed {
   security verify-cert -c "${puma_certificate_file}" > /dev/null 2>&1
 }
 
-
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
 function deconfigure_puma_dev {
   puma-dev -uninstall -d test
@@ -373,7 +372,10 @@ fi
 # See https://github.com/basecamp/pow/wiki/Troubleshooting#rbenv
 if [ -n "$SKIP_POW" ]; then
   # Add flag for folks who wish to opt out of pow.
-  print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
+
+  if [[ "$DEVELOPMENT_SERVER" = "pow" ]]; then
+     print_warning "Skipping Pow setup because 'SKIP_POW' is set. YMMV."
+  fi
 else
 
   # ------------ TEMPORARILY UNINSTALL PUMA ------------------------
@@ -396,7 +398,9 @@ fi
 ##
 # Install puma-dev development server
 if [ -n "$SKIP_PUMA_DEV" ]; then
-  print_warning "Skipping puma-dev setup because 'SKIP_PUMA_DEV' is set."
+  if [[ "$DEVELOPMENT_SERVER" = "puma-dev" ]]; then
+    print_warning "Skipping puma-dev setup because 'SKIP_PUMA_DEV' is set."
+  fi
 else
   # ------------ TEMPORARILY UNINSTALL POW ------------------------
   uninstall_pow
