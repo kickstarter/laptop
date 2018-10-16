@@ -316,7 +316,7 @@ print_done
 puma_certificate_file="${HOME}/Library/Application Support/io.puma.dev/cert.pem"
 
 function puma_certificate_installed {
-  security verify-cert -c "${puma_certificate_file}" >> "$tmp_output" 2>&1
+  test -f "${puma_certificate_file}" && security verify-cert -c "${puma_certificate_file}" >> "$tmp_output" 2>&1
 }
 
 # Remove the Puma-dev TLS root cert, disable puma-dev dns resolution for .test domains
