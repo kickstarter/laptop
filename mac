@@ -81,12 +81,12 @@ exit_message() {
 # shellcheck disable=SC2154
 trap exit_message EXIT
 
-## Check for OS X >= 10.10, <=  10.13
+## Check for OS X >= 10.10, <=  10.14
 if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
-  if ! sw_vers -productVersion | grep -q "^10.1[0-3]"; then
-    print_error "Unsupported OS X version. Please use macOS High Sierra, Sierra, El Capitan, or Yosemite."
+  if ! sw_vers -productVersion | grep -q "^10.1[0-4]"; then
+    print_error "Unsupported OS X version. Please use macOS Mojave, High Sierra, Sierra, El Capitan, or Yosemite."
     print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
   fi
