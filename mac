@@ -350,7 +350,7 @@ function configure_puma_dev {
     security add-trusted-cert -k ${login_keychain} "${puma_certificate_file}"
   fi
 
-  [[ $(curl --silent http://test) == 'unknown app' ]]
+  [[ $(curl --silent http://expectUnknownApp.test) == 'unknown app' ]]
 }
 
 # Uninstall pow, if installed
