@@ -52,7 +52,7 @@ check_bundler_dependencies() {
   print_status "Checking bundler dependencies"
   # Install latest used version of bundler
   BUNDLER_VERSION=$(tail -n 1 Gemfile.lock | tr -d ' ')
-  gem install -q bundler -v "=$BUNDLER_VERSION" --no-ri --no-rdoc
+  gem install -q bundler -v "=$BUNDLER_VERSION"
   bundle config --global build.mysql2 --with-opt-dir="$(brew --prefix openssl)"
   if ! bundle check >/dev/null
   then
