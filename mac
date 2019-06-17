@@ -265,7 +265,8 @@ case $(basename "$SHELL") in
 
     # Source bashrc from bash_profile
     if ! grep -Fqs 'source ~/.bashrc' "$HOME/.bash_profile"; then
-      echo 'source ~/.bashrc' >> "$HOME/.bash_profile"
+      echo ''
+      echo 'source ~/.bashrc # Provisioned by ksr laptop script' >> "$HOME/.bash_profile"
     fi
     ;;
   zsh )
