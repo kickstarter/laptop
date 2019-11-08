@@ -212,6 +212,10 @@ brew "parallel"
 brew "puma-dev"
 brew "rbenv"
 brew "ruby-build"
+
+# Used to run rspec feature tests
+brew "geckodriver" 
+
 EOF
 print_done
 
