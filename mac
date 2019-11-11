@@ -198,7 +198,6 @@ fi
 print_status "Checking Homebrew formulae"
 brew bundle --file=- > "$tmp_output" <<EOF
 tap "homebrew/services" # For 'brew service'
-tap "caskroom/cask" # For java
 tap "puma/puma" # For puma-dev
 
 cask "java"
