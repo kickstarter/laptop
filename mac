@@ -366,7 +366,7 @@ function uninstall_pow {
 
 # ----------- DEVELOPMENT_SERVER -----------
 # Temporarily allow switching between pow and puma-dev with this flag.
-export DEVELOPMENT_SERVER=${DEVELOPMENT_SERVER:=pow}
+export DEVELOPMENT_SERVER=${DEVELOPMENT_SERVER:=puma-dev}
 print_status "Using DEVELOPMENT_SERVER=$(tput bold)$(tput setaf 7)${DEVELOPMENT_SERVER}$(tput sgr0)"
 print_done
 
