@@ -4,6 +4,7 @@
 # Be prepared to turn your laptop (or desktop, no haters here)
 # into an awesome development machine.
 
+# testing
 set -e
 
 cat > ~/.ksr_functions.sh <<-"EOF"
