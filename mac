@@ -73,7 +73,7 @@ exit_message() {
    # shellcheck disable=SC1117
    printf "\n\n"
    print_error "Setup failed. 💔  "
-   print_error "Try running this command again, or paste this output in #dev-environments Slack channel"
+   print_error "Try running this command again, have a look at https://app.getguru.com/card/ig4eayoT/Help-bindev-is-not-working or paste this output in #dev-environments Slack channel"
  fi
  rm -f "$tmp_output"
  exit $ret
@@ -82,11 +82,11 @@ exit_message() {
 # shellcheck disable=SC2154
 trap exit_message EXIT
 
-## Check for OS X >= 10.10, <=  10.14
+## Check for OS X >= 10.10, <=  10.15
 if [ -n "$DANGER_ZONE" ]; then
   print_warning "Skipping check of macOS/OS X version. 😎  DANGER ZONE"
 else
-  if ! sw_vers -productVersion | grep -q "^10.1[0-4]"; then
+  if ! sw_vers -productVersion | grep -q "^10.1[0-5]"; then
     print_error "Unsupported OS X version. Please use macOS Mojave, High Sierra, Sierra, El Capitan, or Yosemite."
     print_error "Or set DANGER_ZONE=1 to proceed anyway."
     exit 1
@@ -174,7 +174,7 @@ fi
 # Install homebrew
 if ! command -v brew >/dev/null; then
   print_status "Installing Homebrew"
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   print_done
 fi
 
@@ -207,6 +207,8 @@ brew "n"
 brew "openssl"
 brew "parallel"
 brew "puma-dev"
+brew "gmp"
+brew "coreutils"
 brew "rbenv"
 brew "ruby-build"
 EOF
