@@ -105,6 +105,9 @@ if which rvm; then
   exit 1
 fi
 
+# 1. Check to prompt and download and installing XCode CLI tools, if it isn't installed in the laptop
+# 2. `softwareupdate -i -a` to update XCode CLI tools
+
 # XCode command-line tools
 # From http://stackoverflow.com/a/15371967
 while ! pkgutil --pkg-info=com.apple.pkg.CLTools_Executables > "$tmp_output" 2>&1; do
