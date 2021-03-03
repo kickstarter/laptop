@@ -7,8 +7,7 @@
 set -e
 
 cat > ~/.ksr_functions.sh <<-"EOF"
-# Helpful functions for from the kickstarter
-# laptop script
+# Helpful functions for the kickstarter laptop script:
 
 # Print a status message with timestamp
 print_status() {
