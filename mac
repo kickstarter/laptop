@@ -210,6 +210,7 @@ brew "puma-dev"
 brew "gmp"
 brew "coreutils"
 brew "rbenv"
+brew "rbenv-vars"
 brew "ruby-build"
 EOF
 print_done
